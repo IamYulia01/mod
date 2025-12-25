@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using static mod.Program;
-
-namespace mod
+﻿namespace mod
 {
     public class Program
     {
@@ -15,7 +12,82 @@ namespace mod
             public int age { get; set; }
             public int type { get; set; }
         }
+
         public Money money { get; set; }
+
+        // Выделяем чистую логику расчета в отдельный метод
+        public double CalculateEndSum()
+        {
+            int n = 0;
+            switch (money.type)
+            {
+                case 1:
+                    n = 12;
+                    break;
+                case 2:
+                    n = 4;
+                    break;
+                case 3:
+                    n = 1;
+                    break;
+            }
+            return money.beginSum * Math.Pow((1 + (money.procent * 0.01) / n), (n * money.age));
+        }
+
+        // Старый метод EndSum() оставляем только для UI
+        public void EndSum()
+        {
+            money.endSum = CalculateEndSum();
+            Console.WriteLine($"\nКонечная сумма: {money.endSum:N2} руб.");
+            Menu();
+        }
+
+        // Выделяем логику расчета по годам
+        public List<(int year, double currentSum, double plus)> CalculateYearlyGrowth()
+        {
+            var result = new List<(int year, double currentSum, double plus)>();
+            int n = 0;
+            switch (money.type)
+            {
+                case 1:
+                    n = 12;
+                    break;
+                case 2:
+                    n = 4;
+                    break;
+                case 3:
+                    n = 1;
+                    break;
+            }
+
+            money.currentSum = money.beginSum;
+            for (int i = 0; i < money.age; i++)
+            {
+                double cur = money.beginSum * Math.Pow((1 + (money.procent * 0.01) / n), (n * (i + 1)));
+                double plus = cur - money.currentSum;
+                money.plusSum.Add(plus);
+                money.currentSum = cur;
+                result.Add((i + 1, money.currentSum, plus));
+            }
+            money.endSum = money.currentSum;
+
+            return result;
+        }
+
+        // Старый метод plusEveryYear() оставляем только для UI
+        public void plusEveryYear()
+        {
+            var yearlyData = CalculateYearlyGrowth();
+
+            Console.WriteLine($"Начальная сумма: {money.beginSum} руб \n");
+            foreach (var data in yearlyData)
+            {
+                Console.WriteLine($"| {data.year}\t| {data.currentSum:N2} \t| {data.plus:N2}\t|\n");
+            }
+            Menu();
+        }
+
+        // Остальной код без изменений...
         public bool Menu()
         {
             Console.WriteLine("Выберите, что вы хотите сделать:");
@@ -38,67 +110,20 @@ namespace mod
                     Console.WriteLine("До свидания!");
                     vozvrat = false;
                     break;
-                defoult:
+                default:
                     Console.WriteLine("Введите номер действия из списка!");
                     vozvrat = true;
                     break;
             }
             return vozvrat;
+        }
 
-        }
-        public void plusEveryYear()
-        {
-            int n = 0;
-            switch (money.type)
-            {
-                case 1:
-                    n = 12;
-                    break;
-                case 2:
-                    n = 4;
-                    break;
-                case 3:
-                    n = 1;
-                    break;
-            }
-            money.currentSum = money.beginSum;
-            Console.WriteLine($"Начальная сумма: {money.beginSum} руб \n");
-            for (int i = 0; i < money.age; i++)
-            {
-                double cur = money.beginSum * Math.Pow((1 + (money.procent * 0.01) / n), (12 * (i + 1)));
-                double plus = cur - money.currentSum;
-                money.plusSum.Add(plus);
-                money.currentSum = cur;
-                Console.WriteLine($"| {i + 1}\t| {money.currentSum:N2} \t| {plus:N2}\t|\n");
-
-            }
-            money.endSum = money.currentSum;
-            Menu();
-        }
-        public void EndSum()
-        {
-            int n = 0;
-            switch (money.type)
-            {
-                case 1:
-                    n = 12;
-                    break;
-                case 2:
-                    n = 4;
-                    break;
-                case 3:
-                    n = 1;
-                    break;
-            }
-            money.endSum = money.beginSum * Math.Pow((1 + (money.procent * 0.01) / n), (12 * money.age));
-            Console.WriteLine($"\nКонечная сумма: {money.endSum:N2} руб.");
-            Menu();
-        }
         public static void Main(string[] args)
         {
             Program program = new Program();
             program.Run();
         }
+
         public void Run()
         {
             money = new Money();
@@ -174,7 +199,3 @@ namespace mod
         }
     }
 }
-
-
-
-
