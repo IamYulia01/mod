@@ -1,0 +1,17 @@
+# Build results
+
+.vs/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+x64/
+x86/
+
+[Dd]ebug/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
